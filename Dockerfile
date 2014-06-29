@@ -1,6 +1,8 @@
 FROM ubuntu:14.04
 MAINTAINER Stuart Roebuck <stuart.roebuck@gmail.com>
 
+WORKDIR /root
+
 RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe" > /etc/apt/sources.list
 
 # Install add-apt-repository command
@@ -21,6 +23,9 @@ ENV LANG en_US.UTF-8
 # Install latest git
 RUN apt-get -y install git
 
+# Install mg - microscopic GNU Emacs-style editor
+RUN apt-get -y install mg
+
 # Accept the Oracle Java license
 RUN echo "oracle-java7-installer shared/accepted-oracle-license-v1-1 boolean true" | debconf-set-selections
 # Install Oracle Java
@@ -38,7 +43,16 @@ RUN dpkg -i sbt-0.13.5.deb
 RUN apt-get -y install sbt
 ENV SBT_OPTS -XX:PermSize=384m -Xmx2G -Xss2M -XX:+DoEscapeAnalysis -XX:+UseCompressedOops -XX:+CMSClassUnloadingEnabled
 # Run sbt to pull down and cache the critical dependencies for running sbt on its own
-RUN sbt about
+# Disable right now as it was generating a `java.lang.StringIndexOutOfBoundsException: String index out of range: 1` error!
+# RUN sbt about
+
+# Install play
+RUN wget http://downloads.typesafe.com/play/2.2.3/play-2.2.3.zip
+RUN apt-get -y install unzip
+RUN unzip play-2.2.3.zip
+RUN mv play-2.2.3 /usr/share/play
+RUN chmod +x /usr/share/play/play
+RUN ln -s /usr/share/play/play /usr/bin/play
 
 # Install node.js & npm
 RUN apt-get -y install nodejs
